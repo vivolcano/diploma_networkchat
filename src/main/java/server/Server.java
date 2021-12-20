@@ -97,6 +97,7 @@ public class Server implements Runnable {
                         }
                     } else if (message.startsWith("/quit")) {
                         broadcast(nickname + " left the chat!");
+                        System.out.println(nickname + " left the chat!");
                         shutdown();
                     } else {
                         broadcast(nickname + ": " + message);
