@@ -48,7 +48,7 @@ public class Client implements Runnable {
         }
     }
 
-    class InputHandler implements Runnable {
+    private class InputHandler implements Runnable {
 
         @Override
         public void run() {
@@ -56,8 +56,8 @@ public class Client implements Runnable {
                 BufferedReader inReader = new BufferedReader(new InputStreamReader(System.in));
                 while (!done) {
                     String message = inReader.readLine();
-                    if (message.equals("/quit")) {
-                        out.println(message);
+                    if (message.equals("/exit")) {
+                       out.println(message);
                        inReader.close();
                        shutdown();
                     } else {

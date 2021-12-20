@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 
 public class Server implements Runnable {
 
-    private List<ConnectionHandler> connections;
+    private final List<ConnectionHandler> connections;
     private ServerSocket server;
     private boolean done;
     private ExecutorService pool;
@@ -62,9 +62,9 @@ public class Server implements Runnable {
         }
     }
 
-    class ConnectionHandler implements Runnable {
+    private class ConnectionHandler implements Runnable {
 
-        private Socket client;
+        private final Socket client;
         private BufferedReader in;
         private PrintWriter out;
         private String nickname;
@@ -85,18 +85,16 @@ public class Server implements Runnable {
                 broadcast(nickname + " joined the chat!");
                 String message;
                 while ((message = in.readLine()) != null) {
-                    if (message.startsWith("/nick ")) {
+                    if (message.startsWith("/rename ")) {
                         String[] messageSplit = message.split(" ", 2);
                         if (messageSplit.length == 2) {
-                            broadcast(nickname + " renamed themselves to " + messageSplit[1]);
                             System.out.println(nickname + " renamed themselves to " + messageSplit[1]);
                             nickname = messageSplit[1];
                             out.println("Successfully changed nickname to " + nickname);
                         } else {
                             out.println("No nickname provided!");
                         }
-                    } else if (message.startsWith("/quit")) {
-                        broadcast(nickname + " left the chat!");
+                    } else if (message.startsWith("/exit")) {
                         System.out.println(nickname + " left the chat!");
                         shutdown();
                     } else {
