@@ -1,5 +1,7 @@
 package server;
 
+import logger.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,11 +9,15 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server implements Runnable {
+
+    public static Logger logger = Logger.getInstance();
 
     private final List<ConnectionHandler> connections;
     private ServerSocket server;
@@ -39,7 +45,8 @@ public class Server implements Runnable {
         }
     }
 
-    public void broadcast(String message) {
+    private void broadcast(String message) {
+        logger.log(message);
         for  (ConnectionHandler ch : connections) {
             if (ch != null) {
                 ch.sendMessage(message);
@@ -47,7 +54,7 @@ public class Server implements Runnable {
         }
     }
 
-    public void shutdown() {
+    private void shutdown() {
         try {
             done = true;
             pool.shutdown();
@@ -70,6 +77,7 @@ public class Server implements Runnable {
         private String nickname;
 
         public ConnectionHandler(Socket client) {
+
             this.client = client;
         }
 
@@ -79,23 +87,24 @@ public class Server implements Runnable {
             try {
                 out = new PrintWriter(client.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                out.println("Please enter a nickname: ");
+
+                out.println("Welcome to the chat room! " + "Please enter your nickname: ");
                 nickname = in.readLine();
-                System.out.println(nickname + " connected!");
+                printAndLog(nickname + " connected!");
                 broadcast(nickname + " joined the chat!");
                 String message;
                 while ((message = in.readLine()) != null) {
                     if (message.startsWith("/rename ")) {
                         String[] messageSplit = message.split(" ", 2);
                         if (messageSplit.length == 2) {
-                            System.out.println(nickname + " renamed themselves to " + messageSplit[1]);
+                            printAndLog(nickname + " renamed themselves to " + messageSplit[1]);
                             nickname = messageSplit[1];
-                            out.println("Successfully changed nickname to " + nickname);
+                            out.println("successfully changed nickname to " + nickname);
                         } else {
-                            out.println("No nickname provided!");
+                            out.println("no nickname provided!");
                         }
                     } else if (message.startsWith("/exit")) {
-                        System.out.println(nickname + " left the chat!");
+                        printAndLog(nickname + " left the chat!");
                         shutdown();
                     } else {
                         broadcast(nickname + ": " + message);
@@ -106,11 +115,11 @@ public class Server implements Runnable {
             }
         }
 
-        public void sendMessage(String message) {
+        private void sendMessage(String message) {
             out.println(message);
         }
 
-        public void shutdown() {
+        private void shutdown() {
             try {
                 in.close();
                 out.close();
@@ -121,10 +130,15 @@ public class Server implements Runnable {
                 // ignore
             }
         }
+
+        private void printAndLog(String message) {
+            System.out.println(message);
+            logger.log(message);
+        }
     }
 
-    public static void main(String[] args) {
-        Server server = new Server();
-        server.run();
-    }
+        public static void main(String[] args) {
+            Server server = new Server();
+            server.run();
+        }
 }

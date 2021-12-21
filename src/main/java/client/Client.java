@@ -35,7 +35,7 @@ public class Client implements Runnable {
         }
     }
 
-    public void shutdown() {
+    private void shutdown() {
         done = true;
         try {
             in.close();
