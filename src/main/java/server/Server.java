@@ -32,7 +32,7 @@ public class Server implements Runnable {
     @Override
     public void run() {
         try {
-            server = new ServerSocket(9000);
+            server = new ServerSocket(ServerService.getPort());
             pool = Executors.newCachedThreadPool();
             while (!done) {
                 Socket client = server.accept();
@@ -100,9 +100,9 @@ public class Server implements Runnable {
                             printAndLog(nickname + " renamed themselves to " + messageSplit[1]);
                             nickname = messageSplit[1];
                             out.println("successfully changed nickname to " + nickname);
-                        } else {
-                            out.println("no nickname provided!");
                         }
+                    } else if (message.startsWith("/help")) {
+                        out.println(helpWindow());
                     } else if (message.startsWith("/exit")) {
                         printAndLog(nickname + " left the chat!");
                         shutdown();
@@ -134,6 +134,15 @@ public class Server implements Runnable {
         private void printAndLog(String message) {
             System.out.println(message);
             logger.log(message);
+        }
+
+        private String helpWindow() {
+            return """
+                    available commands:
+                    /rename - change current name\s
+                    /quit - exit chat\s
+                    /help - command help\s
+                    """;
         }
     }
 

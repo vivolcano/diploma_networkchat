@@ -1,5 +1,7 @@
 package client;
 
+import server.ServerService;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,7 +19,7 @@ public class Client implements Runnable {
     public void run() {
 
         try {
-            client = new Socket("127.0.0.1",9000);
+            client = new Socket("127.0.0.1", ServerService.getPort());
             out = new PrintWriter(client.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
